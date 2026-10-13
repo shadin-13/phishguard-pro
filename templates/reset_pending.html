@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Password reset – PhishGuard Pro{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card p-4">
+      <h1 class="page-title" style="font-size:1.25rem;">Password reset</h1>
+      <p class="page-sub">
+        If an account exists for that address, a reset link has been issued.
+        Production systems send this by email; when email delivery is not configured, use the link below.
+      </p>
+      {% if reset_url %}
+      <div class="p-3 mb-3" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;word-break:break-all;">
+        <a href="{{ reset_url }}">{{ reset_url }}</a>
+      </div>
+      <a href="{{ reset_url }}" class="btn btn-primary">Continue</a>
+      {% else %}
+      <p class="small" style="color:var(--text-muted);">No link is available in this session.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

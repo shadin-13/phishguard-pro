@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PhishGuard Pro{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Dark (default) ===== */
+        html[data-theme="dark"] {
+            --bg: #0b1220;
+            --surface: #141c2b;
+            --surface2: #1c2738;
+            --border: #2a3648;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --input-bg: #0b1220;
+            --shadow: 0 4px 24px rgba(0,0,0,0.35);
+        }
+        /* ===== Light ===== */
+        html[data-theme="light"] {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface2: #e2e8f0;
+            --border: #cbd5e1;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --input-bg: #f8fafc;
+            --shadow: 0 4px 20px rgba(15,23,42,0.08);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            min-height: 100vh;
+            padding: 1.25rem 0.85rem;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar .brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 0.4rem 0.7rem 1.2rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sidebar .brand i { color: var(--primary); font-size: 1.35rem; }
+        .sidebar .nav-section {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            padding: 0.75rem 0.85rem 0.35rem;
+            font-weight: 600;
+        }
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            border-radius: 8px;
+            margin: 0.12rem 0;
+            padding: 0.6rem 0.85rem;
+            font-weight: 500;
+            font-size: 0.92rem;
+            transition: background 0.15s, color 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .sidebar .nav-link:hover { background: var(--surface2); color: var(--text); }
+        .sidebar .nav-link.active {
+            background: color-mix(in srgb, var(--primary) 18%, transparent);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .sidebar .nav-link i { width: 1.25rem; opacity: 0.9; }
+
+        .user-chip {
+            margin-top: auto;
+            padding: 0.75rem;
+            background: var(--surface2);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .user-chip strong { color: var(--text); display: block; margin-top: 0.15rem; word-break: break-all; }
+
+        .theme-toggle {
+            width: 100%;
+            margin-top: 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .theme-toggle:hover { color: var(--text); border-color: var(--primary); }
+
+        .main-content { padding: 1.75rem 2rem; max-width: 1100px; }
+        .page-title {
+            font-weight: 700;
+            font-size: 1.45rem;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+        }
+        .page-sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.4rem;
+            max-width: 42rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            color: var(--text);
+        }
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            padding: 0.95rem 1.2rem;
+            color: var(--text);
+        }
+        .card-body { padding: 1.2rem; color: var(--text-secondary); }
+        .card-body strong, .card-body h5 { color: var(--text); }
+
+        .stat-card { text-align: center; padding: 1.25rem 1rem; }
+        .stat-card .num { font-size: 1.75rem; font-weight: 700; color: var(--text); }
+        .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem; }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.55rem 1.15rem;
+            color: #fff !important;
+        }
+        .btn-primary:hover { background: var(--primary-hover); color: #fff !important; }
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+            font-weight: 600;
+            border-radius: 8px;
+            color: #fff !important;
+        }
+        .btn-outline-secondary, .btn-outline-light {
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            background: transparent;
+            border-radius: 8px;
+        }
+        .btn-outline-secondary:hover, .btn-outline-light:hover {
+            background: var(--surface2);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text);
+            margin-bottom: 0.35rem;
+        }
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            display: block;
+        }
+        .form-control, .form-select {
+            background: var(--input-bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            border-radius: 8px;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent) !important;
+            color: var(--text) !important;
+        }
+        .form-control::placeholder { color: var(--text-muted); opacity: 0.85; }
+        .form-check-label { color: var(--text-secondary); font-size: 0.9rem; }
+        .form-check-input { border-color: var(--border); }
+
+        .table { color: var(--text); --bs-table-bg: transparent; }
+        .table thead th {
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .table td {
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            color: var(--text-secondary);
+        }
+        .table a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .table a:hover { text-decoration: underline; }
+
+        .badge { font-weight: 600; border-radius: 6px; font-size: 0.75rem; }
+        .bg-danger { background: color-mix(in srgb, var(--danger) 20%, transparent) !important; color: var(--danger) !important; }
+        .bg-success { background: color-mix(in srgb, var(--success) 20%, transparent) !important; color: var(--success) !important; }
+        .bg-warning { background: color-mix(in srgb, var(--warning) 22%, transparent) !important; color: var(--warning) !important; }
+        .bg-primary { background: color-mix(in srgb, var(--primary) 20%, transparent) !important; color: var(--primary) !important; }
+
+        .alert { border-radius: 8px; border: 1px solid var(--border); }
+        .text-muted { color: var(--text-muted) !important; }
+        code {
+            color: var(--primary);
+            background: var(--surface2);
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+            font-size: 0.88em;
+        }
+
+        .module-card { transition: transform 0.15s, border-color 0.15s; height: 100%; }
+        .module-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .module-card .icon-wrap {
+            width: 48px; height: 48px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem; margin-bottom: 0.75rem;
+        }
+        .module-card h5 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+        .module-card p { font-size: 0.88rem; line-height: 1.45; }
+
+        .result-box { display: none; }
+        .mobile-nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.7rem 1rem;
+        }
+        .mobile-nav strong { color: var(--text); }
+
+
+        .password-wrap { position: relative; }
+        .password-wrap .form-control { padding-right: 2.75rem; }
+        .password-toggle {
+            position: absolute; right: 0.65rem; top: 50%; transform: translateY(-50%);
+            border: none; background: transparent; color: var(--text-muted);
+            cursor: pointer; padding: 0.25rem; line-height: 1; font-size: 1.1rem;
+        }
+        .password-toggle:hover { color: var(--primary); }
+        a.brand:hover { opacity: 0.9; }
+
+        @media (max-width: 767px) {
+            .sidebar { display: none !important; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('pg-theme');
+          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-md-3 col-lg-2 sidebar d-none d-md-flex flex-column">
+            <a class="brand text-decoration-none" href="{{ url_for('home') }}" style="color:inherit;"><i class="bi bi-shield-lock-fill"></i> PhishGuard Pro</a>
+
+            <div class="nav-section">Tools</div>
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
+                    <i class="bi bi-house-fill"></i> Home
+                </a>
+                <a class="nav-link {% if request.endpoint == 'url_threat_page' %}active{% endif %}" href="{{ url_for('url_threat_page') }}">
+                    <i class="bi bi-link-45deg"></i> URL Threat Check
+                </a>
+                <a class="nav-link {% if request.endpoint == 'spam_scanner_page' %}active{% endif %}" href="{{ url_for('spam_scanner_page') }}">
+                    <i class="bi bi-envelope-exclamation"></i> Spam Scanner
+                </a>
+                <a class="nav-link {% if request.endpoint == 'vuln_scanner_page' %}active{% endif %}" href="{{ url_for('vuln_scanner_page') }}">
+                    <i class="bi bi-bug-fill"></i> Vuln Scanner
+                </a>
+            </nav>
+
+            <div class="nav-section">Account</div>
+            <nav class="nav flex-column flex-grow-1">
+                {% if current_user.is_authenticated %}
+                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                    <i class="bi bi-grid-1x2-fill"></i> My Dashboard
+                </a>
+                <a class="nav-link {% if request.endpoint == 'change_password' %}active{% endif %}" href="{{ url_for('change_password') }}">
+                    <i class="bi bi-key-fill"></i> Change password
+                </a>
+                {% if current_user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+                    <i class="bi bi-shield-fill-check"></i> Admin Panel
+                </a>
+                {% endif %}
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="bi bi-box-arrow-right"></i> Log out
+                </a>
+                {% else %}
+                <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">
+                    <i class="bi bi-box-arrow-in-right"></i> Log in
+                </a>
+                <a class="nav-link {% if request.endpoint == 'register' %}active{% endif %}" href="{{ url_for('register') }}">
+                    <i class="bi bi-person-plus"></i> Create account
+                </a>
+                {% endif %}
+            </nav>
+
+            <button type="button" class="theme-toggle" id="themeToggle" title="Switch theme">
+                <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                <span id="themeLabel">Dark mode</span>
+            </button>
+
+            {% if current_user.is_authenticated %}
+            <div class="user-chip mt-2">
+                Signed in as
+                <strong>{% if current_user.name %}{{ current_user.name }}{% else %}{{ current_user.email.split('@')[0] }}{% endif %}</strong>
+                <span style="font-size:0.75rem;color:var(--text-muted);word-break:break-all;">{{ current_user.email }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-9 col-lg-10">
+            <div class="mobile-nav d-md-none d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <a href="{{ url_for('home') }}" class="text-decoration-none" style="color:var(--text);font-weight:700;"><i class="bi bi-shield-lock-fill me-1" style="color:var(--primary)"></i> PhishGuard</a>
+                <div class="d-flex gap-1 flex-wrap align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggleMobile" aria-label="Toggle theme">
+                        <i class="bi bi-moon-stars-fill"></i>
+                    </button>
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">Home</a>
+                    <a href="{{ url_for('url_threat_page') }}" class="btn btn-outline-secondary btn-sm">URL</a>
+                    <a href="{{ url_for('spam_scanner_page') }}" class="btn btn-outline-secondary btn-sm">Spam</a>
+                    <a href="{{ url_for('vuln_scanner_page') }}" class="btn btn-outline-secondary btn-sm">Vuln</a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm">Me</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary btn-sm">Out</a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-sm">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="main-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show py-2" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('pg-theme', theme); } catch (e) {}
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    if (icon) icon.className = theme === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+    if (label) label.textContent = theme === 'dark' ? 'Dark mode' : 'Light mode';
+  }
+  function toggleTheme() {
+    var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  }
+  var t = document.getElementById('themeToggle');
+  var m = document.getElementById('themeToggleMobile');
+  if (t) t.addEventListener('click', toggleTheme);
+  if (m) m.addEventListener('click', toggleTheme);
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+})();
+</script>
+
+<script>
+document.querySelectorAll('[data-password-toggle]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var id = btn.getAttribute('data-password-toggle');
+    var input = document.getElementById(id);
+    if (!input) return;
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  });
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

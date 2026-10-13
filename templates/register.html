@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Create account – PhishGuard Pro{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <h1 class="page-title">Create account</h1>
+        <p class="page-sub">
+            Register with your email. After verification you can use the Vulnerability Scanner.
+            URL and spam tools stay available without login.
+        </p>
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" autocomplete="on">
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Display name <span class="text-muted">(optional)</span></label>
+                        <input type="text" id="name" name="name" class="form-control" autocomplete="name" placeholder="How you want to appear">
+                        <span class="form-hint">Shown in the sidebar when you are signed in.</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email address</label>
+                        <input type="email" id="email" name="email" class="form-control" required autocomplete="email" placeholder="you@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="password-wrap">
+                            <input type="password" id="password" name="password" class="form-control" required minlength="8"
+                                   autocomplete="new-password" placeholder="At least 8 characters">
+                            <button type="button" class="password-toggle" data-password-toggle="password" aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label" for="confirm">Confirm password</label>
+                        <div class="password-wrap">
+                            <input type="password" id="confirm" name="confirm" class="form-control" required minlength="8"
+                                   autocomplete="new-password" placeholder="Type the same password again">
+                            <button type="button" class="password-toggle" data-password-toggle="confirm" aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Create account</button>
+                </form>
+                <p class="text-center mt-3 mb-0 small" style="color: var(--text-secondary);">
+                    Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Admin – PhishGuard Pro{% endblock %}
+{% block content %}
+<div class="page-title">Admin Panel</div>
+<p class="page-sub">Platform users and aggregate activity (admin only)</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card stat-card"><div class="num" style="color:#3b82f6;">{{ total_users }}</div><div class="label">Users</div></div></div>
+    <div class="col-md-4"><div class="card stat-card"><div class="num" style="color:#10b981;">{{ total_scans }}</div><div class="label">All scans</div></div></div>
+    <div class="col-md-4"><div class="card stat-card"><div class="num" style="color:#ef4444;">{{ blocked }}</div><div class="label">Blocked</div></div></div>
+</div>
+
+
+<div class="card mb-4">
+  <div class="card-header">Model & dataset note</div>
+  <div class="card-body small text-muted">
+    <p><strong style="color:#e8edf5;">Phishing:</strong> {{ model_info.phishing_dataset }} · {{ model_info.phishing_model }}</p>
+    <p><strong style="color:#e8edf5;">Spam:</strong> {{ model_info.spam_dataset }} · {{ model_info.spam_model }}</p>
+    <p>{{ model_info.note }}</p>
+  </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">Users</div>
+    <div class="card-body p-0 table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Email</th><th>Role</th><th>Verified</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for u in users %}
+            <tr>
+                <td class="small">{{ u.email }}</td>
+                <td><span class="badge bg-primary">{{ u.role }}</span></td>
+                <td>{% if u.is_verified %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-warning">No</span>{% endif %}</td>
+                <td>{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Blocked</span>{% endif %}</td>
+                <td class="small text-muted">{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if u.role != 'admin' %}
+                    <form method="POST" action="{{ url_for('admin_toggle_block', user_id=u.id) }}" class="d-inline">
+                        <button class="btn btn-outline-light btn-sm">{% if u.is_active %}Block{% else %}Unblock{% endif %}</button>
+                    </form>
+                    {% if not u.is_verified %}
+                    <form method="POST" action="{{ url_for('admin_verify_user', user_id=u.id) }}" class="d-inline">
+                        <button class="btn btn-outline-light btn-sm">Verify</button>
+                    </form>
+                    {% endif %}
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent platform scans (metadata)</div>
+    <div class="card-body p-0 table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Time</th><th>Type</th><th>User ID</th><th>Target</th><th>Threat</th></tr></thead>
+            <tbody>
+            {% for h in recent %}
+            <tr>
+                <td class="small text-muted">{{ h.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ h.scan_type }}</td>
+                <td>{{ h.user_id or 'guest' }}</td>
+                <td class="small text-truncate" style="max-width:200px;">{{ h.target }}</td>
+                <td>{% if h.is_threat %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No data</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

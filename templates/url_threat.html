@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}AI URL Threat Detector – PhishGuard Pro{% endblock %}
+{% block content %}
+<h1 class="page-title"><i class="bi bi-link-45deg me-2"></i>URL Threat Check</h1>
+<p class="page-sub">Submit a URL for phishing and malicious-indicator analysis. No account required.</p>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold">Scan URL</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Enter URL</label>
+                    <input type="url" id="urlInput" class="form-control form-control-lg" placeholder="https://example.com">
+                </div>
+                <button class="btn btn-primary w-100" id="scanBtn" onclick="scanURL()">
+                    <i class="bi bi-shield-check me-1"></i> Analyze Threat
+                </button>
+                <div id="loading" class="text-center mt-3" style="display:none;">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="small text-muted mt-2">Analyzing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card result-box" id="resultCard">
+            <div class="card-header fw-semibold d-flex justify-content-between">
+                <span>Result</span>
+                <span id="resultBadge" class="badge"></span>
+            </div>
+            <div class="card-body">
+                <p><strong>URL:</strong> <code id="resUrl"></code></p>
+                <p><strong>Label:</strong> <span id="resLabel"></span></p>
+                <p><strong>Confidence:</strong> <span id="resConf"></span>%</p>
+                <p><strong>Risk Score:</strong> <span id="resRisk"></span>/100</p>
+                <p><strong>Threat Level:</strong> <span id="resLevel" class="badge"></span></p>
+            </div>
+        </div>
+        <div class="card" id="placeholder">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-shield display-4"></i>
+                <p class="mt-2 mb-0">Enter a URL and click Analyze</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function scanURL() {
+    const url = document.getElementById('urlInput').value.trim();
+    if (!url) { alert('Please enter a URL'); return; }
+    document.getElementById('scanBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('placeholder').style.display = 'none';
+    try {
+        const res = await fetch('/api/url-threat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({url})
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+        document.getElementById('resUrl').textContent = data.url;
+        document.getElementById('resLabel').textContent = data.label;
+        document.getElementById('resConf').textContent = data.confidence;
+        document.getElementById('resRisk').textContent = data.risk_score;
+        const level = document.getElementById('resLevel');
+        level.textContent = data.threat_level;
+        level.className = 'badge badge-' + (data.threat_level || 'low').toLowerCase();
+        const badge = document.getElementById('resultBadge');
+        badge.textContent = data.is_phishing ? 'THREAT' : 'SAFE';
+        badge.className = 'badge ' + (data.is_phishing ? 'bg-danger' : 'bg-success');
+        document.getElementById('resultCard').style.display = 'block';
+    } catch (e) {
+        alert('Error: ' + e.message);
+        document.getElementById('placeholder').style.display = 'block';
+    } finally {
+        document.getElementById('scanBtn').disabled = false;
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Spam & Threat Scanner – PhishGuard Pro{% endblock %}
+{% block content %}
+<h1 class="page-title"><i class="bi bi-envelope-exclamation me-2"></i>Spam Scanner</h1>
+<p class="page-sub">Paste message or email content to classify spam and social-engineering risk. No account required.</p>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold">Analyze Text / Email</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Paste email subject + body or message</label>
+                    <textarea id="textInput" class="form-control" rows="8" placeholder="Paste the email or message content here..."></textarea>
+                </div>
+                <button class="btn btn-primary w-100" id="scanBtn" onclick="scanSpam()">
+                    <i class="bi bi-search me-1"></i> Scan for Spam & Threat
+                </button>
+                <div id="loading" class="text-center mt-3" style="display:none;">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card result-box" id="resultCard">
+            <div class="card-header fw-semibold d-flex justify-content-between">
+                <span>Result</span>
+                <span id="resultBadge" class="badge"></span>
+            </div>
+            <div class="card-body">
+                <p><strong>Label:</strong> <span id="resLabel"></span></p>
+                <p><strong>Confidence:</strong> <span id="resConf"></span>%</p>
+                <p><strong>Risk Score:</strong> <span id="resRisk"></span>/100</p>
+                <p><strong>Threat Level:</strong> <span id="resLevel" class="badge"></span></p>
+            </div>
+        </div>
+        <div class="card" id="placeholder">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-envelope display-4"></i>
+                <p class="mt-2 mb-0">Paste text and click Scan</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function scanSpam() {
+    const text = document.getElementById('textInput').value.trim();
+    if (!text) { alert('Please enter some text'); return; }
+    document.getElementById('scanBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('placeholder').style.display = 'none';
+    try {
+        const res = await fetch('/api/spam', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text})
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+        document.getElementById('resLabel').textContent = data.label;
+        document.getElementById('resConf').textContent = data.confidence;
+        document.getElementById('resRisk').textContent = data.risk_score;
+        const level = document.getElementById('resLevel');
+        level.textContent = data.threat_level;
+        level.className = 'badge badge-' + (data.threat_level || 'low').toLowerCase();
+        const badge = document.getElementById('resultBadge');
+        badge.textContent = data.is_spam ? 'SPAM / THREAT' : 'CLEAN';
+        badge.className = 'badge ' + (data.is_spam ? 'bg-danger' : 'bg-success');
+        document.getElementById('resultCard').style.display = 'block';
+    } catch (e) {
+        alert('Error: ' + e.message);
+        document.getElementById('placeholder').style.display = 'block';
+    } finally {
+        document.getElementById('scanBtn').disabled = false;
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

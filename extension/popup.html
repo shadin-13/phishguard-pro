@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 320px; font-family: system-ui, sans-serif; margin: 0; padding: 12px; background: #f8f9fa; }
+    h3 { margin: 0 0 8px; color: #1a73e8; font-size: 16px; }
+    .url { font-size: 12px; word-break: break-all; color: #555; margin-bottom: 10px; }
+    button { width: 100%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #0d47a1; }
+    button:disabled { background: #aaa; }
+    #result { margin-top: 12px; padding: 10px; border-radius: 6px; display: none; }
+    .safe { background: #d4edda; color: #155724; }
+    .threat { background: #f8d7da; color: #721c24; }
+    .loading { text-align: center; color: #666; font-size: 13px; margin-top: 8px; display: none; }
+  </style>
+</head>
+<body>
+  <h3>🛡️ PhishGuard Pro</h3>
+  <div class="url" id="pageUrl">Loading...</div>
+  <button id="checkBtn">Check This URL</button>
+  <div class="loading" id="loading">Checking...</div>
+  <div id="result"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

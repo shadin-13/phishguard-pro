@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PRODUCTION=1
+      - SECRET_KEY=${SECRET_KEY:-please-change-this-secret-key-in-production}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@phishguard.local}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-ChangeMeAdmin#2026}
+      - PORT=8000
+    volumes:
+      - pgdata:/app/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:

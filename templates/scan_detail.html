@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Scan #{{ scan.id }} – PhishGuard Pro{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <div class="page-title">Scan #{{ scan.id }}</div>
+    <p class="page-sub mb-0">{{ scan.scan_type }} · {{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at else '' }}</p>
+  </div>
+  <a class="btn btn-primary btn-sm" href="{{ url_for('scan_report', scan_id=scan.id) }}">Download HTML report</a>
+</div>
+<div class="card mb-3">
+  <div class="card-body">
+    <p><strong>Target:</strong> <code>{{ scan.target }}</code></p>
+    <p><strong>Label:</strong> {{ scan.label }}</p>
+    <p><strong>Threat:</strong> {% if scan.is_threat %}<span class="badge bg-danger">Yes</span>{% else %}<span class="badge bg-success">No</span>{% endif %}
+       · Risk score: {{ scan.risk_score }}</p>
+  </div>
+</div>
+<div class="card">
+  <div class="card-header">Raw result</div>
+  <div class="card-body">
+    <pre class="small mb-0" style="white-space:pre-wrap;color:#94a3b8;">{{ result | tojson(indent=2) }}</pre>
+  </div>
+</div>
+{% endblock %}

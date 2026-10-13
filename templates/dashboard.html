@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard – PhishGuard Pro{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+<div class="page-title mb-0">My Dashboard</div>
+<div class="d-flex gap-2">
+<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('change_password') }}">Change password</a>
+<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_csv') }}">Export CSV</a>
+</div>
+</div>
+<p class="page-sub">This page shows only your scans. Other users cannot see your history.</p>
+
+{% if not current_user.is_verified %}
+<div class="alert alert-warning">Email not verified — Vulnerability Scanner is locked.
+  <a href="{{ url_for('verify_pending') }}">Verify now</a>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-4">
+        <div class="card stat-card"><div class="num" style="color:#3b82f6;">{{ total_scans }}</div><div class="label">My scans</div></div>
+    </div>
+    <div class="col-4">
+        <div class="card stat-card"><div class="num" style="color:#ef4444;">{{ vuln_scans }}</div><div class="label">Vuln scans</div></div>
+    </div>
+    <div class="col-4">
+        <div class="card stat-card"><div class="num" style="color:#f59e0b;">{{ threat_count }}</div><div class="label">Threats flagged</div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">My recent history</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead><tr><th>Time</th><th>Type</th><th>Target</th><th>Result</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for h in history %}
+                <tr>
+                    <td class="small text-muted">{{ h.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><span class="badge bg-primary">{{ h.scan_type }}</span></td>
+                    <td class="small text-truncate" style="max-width:220px;">{{ h.target }}</td>
+                    <td class="small"><a href="{{ url_for('scan_detail', scan_id=h.id) }}" style="color:#93c5fd;">{{ h.label }}</a></td>
+                    <td>{% if h.is_threat %}<span class="badge bg-danger">Threat</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-4">No scans yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

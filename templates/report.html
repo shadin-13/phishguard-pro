@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishGuard Pro Report #{{ scan.id }}</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:800px;margin:2rem auto;padding:0 1rem;color:#111}
+  h1{font-size:1.4rem} .meta{color:#555;font-size:0.9rem}
+  table{width:100%;border-collapse:collapse;margin-top:1rem}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:0.9rem}
+  th{background:#f5f5f5} .ok{color:#0a0} .bad{color:#c00}
+  footer{margin-top:2rem;font-size:0.8rem;color:#777}
+</style>
+</head>
+<body>
+  <h1>PhishGuard Pro — Scan Report</h1>
+  <p class="meta">Report ID: {{ scan.id }} · Generated: {{ generated.strftime('%Y-%m-%d %H:%M UTC') }}</p>
+  <p><strong>Type:</strong> {{ scan.scan_type }}<br>
+     <strong>Target:</strong> {{ scan.target }}<br>
+     <strong>Label:</strong> {{ scan.label }}<br>
+     <strong>Threat:</strong> {{ 'Yes' if scan.is_threat else 'No' }} · Risk: {{ scan.risk_score }}</p>
+  {% if scan.scan_type == 'vuln' and result.get('vulnerabilities') %}
+  <h2>Findings ({{ result.vulnerabilities|length }})</h2>
+  <table>
+    <tr><th>Type</th><th>Severity</th><th>Parameter</th><th>Description</th></tr>
+    {% for v in result.vulnerabilities %}
+    <tr>
+      <td>{{ v.type }}</td>
+      <td>{{ v.severity }}</td>
+      <td>{{ v.parameter }}</td>
+      <td>{{ v.description }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <h2>Result data</h2>
+  <pre style="background:#f8f8f8;padding:1rem;overflow:auto;font-size:0.85rem;">{{ result | tojson(indent=2) }}</pre>
+  {% endif %}
+  <footer>
+    Authorized testing only. This report does not guarantee complete coverage of all possible vulnerabilities.
+  </footer>
+</body>
+</html>

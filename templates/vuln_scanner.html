@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Vulnerability Scanner – PhishGuard Pro{% endblock %}
+{% block content %}
+<h1 class="page-title"><i class="bi bi-bug-fill me-2"></i>Vulnerability Scanner</h1>
+<p class="page-sub">Run an authorized security assessment against a target you control. Findings include headers, injection risks, redirects, and sensitive path exposure.</p>
+
+<div class="row">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header fw-semibold">Target Website</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">URL</label>
+                    <input type="url" id="urlInput" class="form-control form-control-lg" placeholder="http://testphp.vulnweb.com">
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="ackAuth" required>
+                    <label class="form-check-label small text-muted" for="ackAuth">
+                        I confirm I am authorized to test this target.
+                    </label>
+                </div>
+                <button class="btn btn-danger w-100" id="scanBtn" onclick="scanVuln()">
+                    <i class="bi bi-radar me-1"></i> Start Vulnerability Scan
+                </button>
+                <div id="loading" class="text-center mt-3" style="display:none;">
+                    <div class="spinner-border text-danger"></div>
+                    <p class="small text-muted mt-2">Scanning... may take 20-60 seconds</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card result-box" id="resultCard">
+            <div class="card-header fw-semibold">Scan Results</div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col"><div class="fs-4 fw-bold text-danger" id="highCount">0</div><small>High</small></div>
+                    <div class="col"><div class="fs-4 fw-bold text-warning" id="medCount">0</div><small>Medium</small></div>
+                    <div class="col"><div class="fs-4 fw-bold text-info" id="lowCount">0</div><small>Low</small></div>
+                    <div class="col"><div class="fs-4 fw-bold" id="pagesCount">0</div><small>Pages</small></div>
+                </div>
+                <div id="vulnTableWrap">
+                    <table class="table table-sm table-hover">
+                        <thead><tr><th>Type</th><th>Severity</th><th>Details</th></tr></thead>
+                        <tbody id="vulnBody"></tbody>
+                    </table>
+                </div>
+                <p id="noVuln" class="text-success" style="display:none;">
+                    <i class="bi bi-check-circle me-1"></i> No common vulnerabilities detected with current tests.
+                </p>
+            </div>
+        </div>
+        <div class="card" id="placeholder">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-bug display-4"></i>
+                <p class="mt-2 mb-0">Enter a URL and start scanning</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function scanVuln() {
+    const url = document.getElementById('urlInput').value.trim();
+    if (!url) { alert('Please enter a URL'); return; }
+    if (!document.getElementById('ackAuth').checked) { alert('You must confirm authorization.'); return; }
+    document.getElementById('scanBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('placeholder').style.display = 'none';
+    try {
+        const res = await fetch('/api/vuln-scan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({url, acknowledge_authorized: document.getElementById('ackAuth').checked})
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+        document.getElementById('highCount').textContent = data.summary?.high || 0;
+        document.getElementById('medCount').textContent = data.summary?.medium || 0;
+        document.getElementById('lowCount').textContent = data.summary?.low || 0;
+        document.getElementById('pagesCount').textContent = data.pages_crawled || 0;
+        const tbody = document.getElementById('vulnBody');
+        tbody.innerHTML = '';
+        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+            document.getElementById('noVuln').style.display = 'none';
+            document.getElementById('vulnTableWrap').style.display = 'block';
+            data.vulnerabilities.forEach(v => {
+                const sevClass = v.severity === 'High' ? 'text-danger' : (v.severity === 'Medium' ? 'text-warning' : 'text-info');
+                tbody.innerHTML += `<tr>
+                    <td>${v.type}</td>
+                    <td class="${sevClass} fw-semibold">${v.severity}</td>
+                    <td><small>${v.description || ''}</small>
+                    ${v.parameter && v.parameter !== '-' ? '<br><code>param: '+v.parameter+'</code>' : ''}
+                    </td></tr>`;
+            });
+        } else {
+            document.getElementById('vulnTableWrap').style.display = 'none';
+            document.getElementById('noVuln').style.display = 'block';
+        }
+        document.getElementById('resultCard').style.display = 'block';
+    } catch (e) {
+        alert('Error: ' + e.message);
+        document.getElementById('placeholder').style.display = 'block';
+    } finally {
+        document.getElementById('scanBtn').disabled = false;
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

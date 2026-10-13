@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Home – PhishGuard Pro{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Security tools in one place</h1>
+    <p class="page-sub">
+        Analyze suspicious URLs, detect spam and social-engineering messages,
+        and run authorized website vulnerability assessments from a single platform.
+    </p>
+    {% if current_user.is_authenticated %}
+    <p class="small mb-0" style="color: var(--text-secondary);">
+        Signed in as
+        <strong style="color: var(--text);">{% if current_user.name %}{{ current_user.name }}{% else %}{{ current_user.email.split('@')[0] }}{% endif %}</strong>.
+        {% if not current_user.is_verified %}
+        <span class="badge bg-warning">Email not verified</span>
+        — <a href="{{ url_for('verify_pending') }}">Complete verification</a> to access the vulnerability scanner.
+        {% endif %}
+    </p>
+    {% endif %}
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card module-card h-100">
+            <div class="card-body">
+                <div class="icon-wrap" style="background:color-mix(in srgb, var(--primary) 15%, transparent);color:var(--primary);">
+                    <i class="bi bi-link-45deg"></i>
+                </div>
+                <h5>URL Threat Analysis</h5>
+                <p class="text-muted mb-3">Submit a URL for machine-learning based phishing and risk scoring.</p>
+                <p class="mb-2"><span class="badge bg-success">Public access</span></p>
+                <a href="{{ url_for('url_threat_page') }}" class="btn btn-primary btn-sm">Open tool</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card module-card h-100">
+            <div class="card-body">
+                <div class="icon-wrap" style="background:color-mix(in srgb, var(--warning) 15%, transparent);color:var(--warning);">
+                    <i class="bi bi-envelope-exclamation"></i>
+                </div>
+                <h5>Spam & Message Analysis</h5>
+                <p class="text-muted mb-3">Classify message content for spam and social-engineering patterns.</p>
+                <p class="mb-2"><span class="badge bg-success">Public access</span></p>
+                <a href="{{ url_for('spam_scanner_page') }}" class="btn btn-primary btn-sm">Open tool</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card module-card h-100">
+            <div class="card-body">
+                <div class="icon-wrap" style="background:color-mix(in srgb, var(--danger) 15%, transparent);color:var(--danger);">
+                    <i class="bi bi-bug-fill"></i>
+                </div>
+                <h5>Vulnerability Scanner</h5>
+                <p class="text-muted mb-3">Assess web applications for common security issues under authorized scope.</p>
+                {% if current_user.is_authenticated and current_user.is_verified %}
+                <p class="mb-2"><span class="badge bg-success">Available</span></p>
+                <a href="{{ url_for('vuln_scanner_page') }}" class="btn btn-danger btn-sm">Open scanner</a>
+                {% elif current_user.is_authenticated %}
+                <p class="mb-2"><span class="badge bg-warning">Verification required</span></p>
+                <a href="{{ url_for('verify_pending') }}" class="btn btn-outline-secondary btn-sm">Verify email</a>
+                {% else %}
+                <p class="mb-2"><span class="badge bg-warning">Sign-in required</span></p>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-sm">Sign in</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="color: var(--text-secondary); font-size: 0.9rem;">
+        <strong style="color: var(--text);">Authorization required:</strong>
+        Vulnerability scanning may only be performed on systems you own or are explicitly permitted to test.
+    </div>
+</div>
+{% endblock %}
